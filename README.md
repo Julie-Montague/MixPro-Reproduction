@@ -23,6 +23,7 @@ Hyperparameters:
   -  Mixing Probabilities: MixUp (0.8), CutMix (1.0), MixPro (1.0)
 
 ## 4. Directory Structure
+```
 MIX-PRO-REPRO/
 ├── configs/
 │   ├── deit_s_baseline.yaml
@@ -56,7 +57,7 @@ MIX-PRO-REPRO/
 ├── train_baseline.py              # Main training loop
 ├── train_mixpro.py
 └── README.md
-
+```
 MixPro proposes to solve these by ensuring mixed images preserve global content and by dynamically weighting the reliance on attention maps based on model confidence.
 
 ##PROJECT OVERVIEW
