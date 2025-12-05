@@ -60,18 +60,11 @@ MIX-PRO-REPRO/
 ```
 MixPro proposes to solve these by ensuring mixed images preserve global content and by dynamically weighting the reliance on attention maps based on model confidence.
 
-##PROJECT OVERVIEW
+## PROJECT OVERVIEW
 MixPro combines:
 - **MaskMix** – spatial mixing via random binary masks in patch space.
 - **PAL (Patch-wise Adaptive Labeling)** – attention-guided interpolation of labels based on patch importance.
 
-This project :
-1. Implemented the MixPro training pipeline for **DeiT-S**.
-2. Prepared a **reduced ImageNet100** dataset to make experiments computationally feasible.
-3. Ran baseline vs MixPro experiments.
-4. Analyzed training dynamics, accuracy, and practical issues in reproducing the original paper.
-
-This repository is designed to be **fully reproducible on a single machine with 1–2 GPUs**, using smaller-scale configurations.
 
 ## 2. Environment Setup
 
@@ -85,4 +78,16 @@ conda activate mixpro-repro
 
 # Install requirements
 pip install -r requirements.txt
+
+#To run baseline:
+CUDA_VISIBLE_DEVICES=<No of GPUs> torchrun --standalone --nproc_per_node= <No of GPUs>\
+  -m src.train_baseline --config configs/deit_s_baseline.yaml --out results
+
+#To run mixpro:
+CUDA_VISIBLE_DEVICES=<No of GPUs> torchrun --standalone --nproc_per_node= <No of GPUs>\
+  -m src.train_mixpro --config configs/deit_s_baseline.yaml --out results
+
+**To run deit_t, substitute with deit_t yaml file**
+
+```
 
