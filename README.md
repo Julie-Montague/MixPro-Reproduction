@@ -69,7 +69,7 @@ MixPro combines:
 ## 2. Environment Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/mix-pro-repro.git
+git clone github repo
 cd mix-pro-repro
 
 # (Optional) create conda env
@@ -85,7 +85,7 @@ CUDA_VISIBLE_DEVICES=<No of GPUs> torchrun --standalone --nproc_per_node= <No of
 
 #To run mixpro:
 CUDA_VISIBLE_DEVICES=<No of GPUs> torchrun --standalone --nproc_per_node= <No of GPUs>\
-  -m src.train_mixpro --config configs/deit_s_baseline.yaml --out results
+  -m src.train_mixpro --config configs/deit_s_mixpro.yaml --out results
 
 **To run deit_t, substitute with deit_t yaml file**
 
