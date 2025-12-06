@@ -1,14 +1,15 @@
 # MixPro: Reproduction and Analysis
-Based on: MixPro: Data Augmentation with MaskMix and Progressive Attention Labeling for Vision Transformer (ICLR 2023)
+Base Paper: MixPro: Data Augmentation with MaskMix and Progressive Attention Labeling for Vision Transformer (ICLR 2023)
 
 ## 1. Abstract
-This project focuses on reproducing the MixPro data augmentation strategy for Vision Transformers (ViTs). We conduct a partial reproduction under limited compute using a deterministically constructed subset of the original dataset. We do not claim to reproduce the paper’s full-dataset headline scores; instead, we test whether the relative performance trends and key ablation conclusions hold.
-MixPro addresses limitations in prior Mixup-based methods (like CutMix and TransMix) by introducing two novel components: MaskMix (image space) and Progressive Attention Labeling (PAL) (label space). This repository contains a PyTorch implementation, reproduction results on reduced subset of the imageNet1k dataset , a critique of the methodology, and a proposed improvement using Entropy-based confidence.
+This project focuses on reproducing the MixPro data augmentation strategy for Vision Transformers (ViTs). We conduct a partial reproduction under limited compute using a deterministically constructed subset of the original dataset. Rather than aiming for exact headline scores, we test whether the relative performance trends hold under Transfer Learning conditions.
+
+MixPro addresses limitations in prior Mixup-based methods by introducing two novel components: MaskMix (image space) and Progressive Attention Labeling (PAL) (label space). This repository contains a PyTorch implementation, reproduction results on a subset of ImageNet-1k, a scientific critique of the methodology, and a proposed improvement using Entropy-based confidence.
 
 ## 2. Background & Motivation
-Vision Transformers (ViTs) generally require massive datasets to generalize well. While data augmentation techniques like CutMix and TransMix have helped, they suffer from specific issues when applied to ViTs:
+Vision Transformers (ViTs) generally require massive datasets to generalize well. While data augmentation techniques like CutMix and TransMix have helped, the authors identify specific issues when applied to ViTs:
 
-  -  Image Space Deficit: Methods like CutMix use region-based cropping (a large rectangular block). This destroys the global context that ViTs rely on for self-attention.
+  -  Image Space Deficit: Methods like CutMix use region-based cropping (a large rectangular block). This destroys the global context that ViTs naturally rely on for self-attention.
 
   -  Label Space Noise: TransMix uses the model's attention map to determine label mixing ratios. However, early in training, attention maps are unreliable, leading to noisy label assignments.
 
@@ -31,45 +32,49 @@ PAL solves the "unreliable attention" problem by introducing a dynamic weight $\
 
 ## 4. Experimental Setup: The "Stress Test"
 
-To evaluate the robustness of MixPro, we devised a **Transfer Learning Stress Test**. We deviated from the paper's "from-scratch" setup to test if MixPro provides value when fine-tuning pre-trained models on smaller datasets.
+To evaluate the robustness of MixPro, we devised a Transfer Learning Stress Test. We deviated from the paper's "from-scratch" setup to test if MixPro provides value when fine-tuning pre-trained models on smaller datasets.
 
 | Feature | Original Paper Setup | Our Reproduction (Stress Test) | Justification |
 | :--- | :--- | :--- | :--- |
 | **Dataset** | ImageNet-1k (1.28M images) | ImageNet Subset | Resource constraints & Data Efficiency test. |
-| **Epochs** | 300 Epochs | 150 Epochs | Sufficient for fine-tuning convergence. |
+| **Epochs** | 300 Epochs | 100 Epochs | Sufficient for fine-tuning convergence. |
 | **Initialization** | **Random (From Scratch)** | **Pre-trained (ImageNet)** | Investigating transfer learning robustness. |
 | **Backbone** | DeiT-Small / DeiT-Tiny | DeiT-Small / DeiT-Tiny | Consistent architectural comparison. |
 
-## 5. Results & Critical Analysis
+## 5. Experimental Results: The "Stress Test"
 
-> **Key Finding:** Under pre-trained conditions, **TransMix outperformed MixPro**, contradicting the results reported for training from scratch.
+We evaluated the models in a **Transfer Learning** regime (Pre-trained).To provide a comprehensive evaluation, we utilized a split-baseline strategy:
 
-### Quantitative Comparison (Epoch 150)
+  -  DeiT-Small: Compared against a Standard Baseline (No Augmentation) to measure raw transfer capability.
+  -  DeiT-Tiny: Compared against a Strong Baseline (CutMix+) to test competitiveness against SOTA.
 
-| Model | Baseline Type | Baseline Top-1 Accuracy | Transmix Top-1 Accuracy |  Mixpro Top-1 Accuracy | 
-| :--- | :--- | :--- | :--- | :--- |
-| **Deit_s** | Standard (No Augmentation) | *67.82%* | *77.09%* | *75.65%* |
-| **Deit_t** | Strong (CutMix+) | *68%* | *77.09%* | *70.77%* |
+### 5.1 Quantitative Results (Top-1 Accuracy)
 
+| Model | Baseline Type | Baseline Acc | MixPro (Ours) | TransMix | Best Method |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **DeiT-Small** | Standard (No Aug) | 67.82% | 75.65% | **77.42%** | TransMix |
+| **DeiT-Tiny** | Strong (CutMix+) | 68.00% | **70.77%** | 69.90% | **MixPro** |
 
-### Scientific Explanation: The "Pre-training Paradox"
+### 5.2 Critical Analysis
 
-Our analysis suggests that MixPro's **Progressive Attention Labeling (PAL)** is counter-productive in transfer learning.
+Our results reveal a distinct interaction between Model Capacity and Augmentation Strategy, highlighting a limitation in the MixPro methodology when applied to Transfer Learning.
 
-1.  **The Paper's Assumption:** Training starts with random weights $\rightarrow$ Attention maps are noise $\rightarrow$ PAL suppresses attention usage early on.
-2.  **Our Reality (Pre-trained):** Training starts with converged weights $\rightarrow$ Attention maps are **already reliable** at Epoch 1.
-3.  **The Conflict:** PAL forces the model to ignore these high-quality attention maps (via $\alpha$) and rely on coarse pixel-area labels. Meanwhile, **TransMix** utilizes the high-quality attention immediately, leading to better performance.
+1.  **DeiT-Tiny Favors MixPro:**
+    For the capacity-constrained Tiny model, **MixPro** achieved the highest accuracy (**70.77%**).
+    *  Smaller models benefit significantly from the aggressive regularization provided by **MaskMix** (Grid Masking). The paper notes MixPro performs better on models with fewer parameters. By forcing the model to reconstruct global context from scattered patches, MixPro prevents overfitting, a benefit that outweighs the simpler CutMix strategy.
 
-**Conclusion:** MixPro is a specialized solution for *training from scratch*. For fine-tuning pre-trained models, simpler methods like TransMix are more efficient.
+2.  **DeiT-Small Favors TransMix:**
+    For the larger Small model, **TransMix** achieved the highest accuracy (**77.42%**).
+    *  This contradicts the "unreliable attention" premise of the paper. Because we utilized a Pre-trained Backbone, the attention maps were reliable from Epoch 1.
+    *  MixPro's PAL mechanism forces the model to ignore these high-quality attention maps (via $\alpha$) early in training. TransMix, which trusts attention immediately, leveraged the pre-trained priors more effectively.
 
-## 6. Derived Improvement: Entropy-Based PAL
+**Conclusion:**
+MixPro is the superior method for low-capacity models or "cold-start" training (as shown in the original paper), whereas TransMix is more efficient for fine-tuning larger, pre-converged models.
 
-To address the limitations of PAL (specifically its dependency on ground-truth alignment), we derived and implemented a novel improvement.
+## 6. Proposed Improvement: Entropy-Based PAL
 
-* [cite_start]**Critique:** The original PAL calculates confidence ($\alpha$) using Cosine Similarity between logits and the Ground Truth label[cite: 143]. This creates an artificial dependency.
-* **Improvement:** We implemented an **Entropy-based Confidence** measure.
-    * **Logic:** A model should determine confidence based on the sharpness of its own predictions (Entropy), independent of the label.
-    * **Implementation:** Located in `src/methods/pal.py`.
+The original PAL calculates confidence ($\alpha$) using Cosine Similarity between logits and the Ground Truth label13. This creates an artificial dependency where the model "peeks" at the label to determine confidence. We propose an Entropy-based Confidence measure.
+A model should determine confidence based on the sharpness of its own predictions (Entropy), independent of the label.
 
 **Formula:**
 $$\alpha = 1 - \frac{Entropy(p)}{MaxEntropy}$$
