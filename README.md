@@ -11,6 +11,25 @@ Vision Transformers (ViTs) generally require massive datasets to generalize well
 
   -  Label Space Noise: TransMix uses the model's attention map to determine label mixing ratios. However, early in training, attention maps are unreliable, leading to noisy label assignments.
 
+## 3. Methodology
+
+[cite_start]We adhered to the algorithmic structure defined in the original paper [cite: 548] while refactoring the codebase for Distributed Data Parallel (DDP) support and robust logging.
+
+### 3.1. MaskMix (Image Space)
+Instead of a single large crop, MaskMix uses a grid-mask strategy.
+* **Logic:** A binary mask $M$ mixes two images $x_i$ and $x_j$: $\tilde{x} = M \odot x_i + (1-M) \odot x_j$.
+* **Constraint:** The mask patch size ($P_{mask}$) is a multiple (e.g., $4\times$) of the ViT input patch size. [cite_start]This ensures every token processed by the ViT comes from exactly one image[cite: 12].
+
+### 3.2. Progressive Attention Labeling (PAL) (Label Space)
+PAL solves the "unreliable attention" problem by introducing a dynamic weight $\alpha$.
+* **The Formula:**
+    $$\lambda = \alpha \cdot \lambda_{attn} + (1-\alpha) \cdot \lambda_{area}$$
+* **Mechanism:** $\alpha$ measures model confidence.
+    * **Low Confidence (Early Training):** $\alpha \to 0$. We trust the pixel area ($\lambda_{area}$).
+    * **High Confidence (Late Training):** $\alpha \to 1$. We trust the attention map ($\lambda_{attn}$).
+
+---
+
 ## 3. Implementation Details
 We reproduced the method using PyTorch and timm.
 Model: deit_tiny_patch16_224 / deit_small
@@ -90,4 +109,9 @@ CUDA_VISIBLE_DEVICES=<No of GPUs> torchrun --standalone --nproc_per_node= <No of
 **To run deit_t, substitute with deit_t yaml file**
 
 ```
+## 8. References
+[1] Zhao, Q., et al. "MixPro: Data Augmentation with MaskMix and Progressive Attention Labeling for Vision Transformer." ICLR 2023. arXiv:2304.12043
 
+[2] Chen, J.-N., et al. "TransMix: Attend to Mix for Vision Transformers." CVPR 2022.
+
+[3] Touvron, H., et al. "Training data-efficient image transformers & distillation through attention." ICML 2021.
