@@ -13,12 +13,12 @@ Vision Transformers (ViTs) generally require massive datasets to generalize well
 
 ## 3. Methodology
 
-[cite_start]We adhered to the algorithmic structure defined in the original paper [cite: 548] while refactoring the codebase for Distributed Data Parallel (DDP) support and robust logging.
+We adhered to the algorithmic structure defined in the original paper while refactoring the codebase for Distributed Data Parallel (DDP) support and robust logging.
 
 ### 3.1. MaskMix (Image Space)
 Instead of a single large crop, MaskMix uses a grid-mask strategy.
 * **Logic:** A binary mask $M$ mixes two images $x_i$ and $x_j$: $\tilde{x} = M \odot x_i + (1-M) \odot x_j$.
-* **Constraint:** The mask patch size ($P_{mask}$) is a multiple (e.g., $4\times$) of the ViT input patch size. [cite_start]This ensures every token processed by the ViT comes from exactly one image[cite: 12].
+* **Constraint:** The mask patch size ($P_{mask}$) is a multiple (e.g., $4\times$) of the ViT input patch size. This ensures every token processed by the ViT comes from exactly one image.
 
 ### 3.2. Progressive Attention Labeling (PAL) (Label Space)
 PAL solves the "unreliable attention" problem by introducing a dynamic weight $\alpha$.
@@ -28,7 +28,16 @@ PAL solves the "unreliable attention" problem by introducing a dynamic weight $\
     * **Low Confidence (Early Training):** $\alpha \to 0$. We trust the pixel area ($\lambda_{area}$).
     * **High Confidence (Late Training):** $\alpha \to 1$. We trust the attention map ($\lambda_{attn}$).
 
----
+## 4. Experimental Setup: The "Stress Test"
+
+To evaluate the robustness of MixPro, we devised a **Transfer Learning Stress Test**. We deviated from the paper's "from-scratch" setup to test if MixPro provides value when fine-tuning pre-trained models on smaller datasets.
+
+| Feature | Original Paper Setup | Our Reproduction (Stress Test) | Justification |
+| :--- | :--- | :--- | :--- |
+| **Dataset** | ImageNet-1k (1.28M images) | ImageNet Subset | Resource constraints & Data Efficiency test. |
+| **Epochs** | 300 Epochs | 150 Epochs | Sufficient for fine-tuning convergence. |
+| **Initialization** | **Random (From Scratch)** | **Pre-trained (ImageNet)** | Investigating transfer learning robustness. |
+| **Backbone** | DeiT-Small / DeiT-Tiny | DeiT-Small / DeiT-Tiny | Consistent architectural comparison. |
 
 ## 3. Implementation Details
 We reproduced the method using PyTorch and timm.
@@ -77,13 +86,6 @@ MIX-PRO-REPRO/
 ├── train_mixpro.py
 └── README.md
 ```
-MixPro proposes to solve these by ensuring mixed images preserve global content and by dynamically weighting the reliance on attention maps based on model confidence.
-
-## PROJECT OVERVIEW
-MixPro combines:
-- **MaskMix** – spatial mixing via random binary masks in patch space.
-- **PAL (Patch-wise Adaptive Labeling)** – attention-guided interpolation of labels based on patch importance.
-
 
 ## 2. Environment Setup
 
