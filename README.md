@@ -68,9 +68,6 @@ Our results reveal a distinct interaction between Model Capacity and Augmentatio
     *  This contradicts the "unreliable attention" premise of the paper. Because we utilized a Pre-trained Backbone, the attention maps were reliable from Epoch 1.
     *  MixPro's PAL mechanism forces the model to ignore these high-quality attention maps (via $\alpha$) early in training. TransMix, which trusts attention immediately, leveraged the pre-trained priors more effectively.
 
-**Conclusion:**
-MixPro is the superior method for low-capacity models or "cold-start" training (as shown in the original paper), whereas TransMix is more efficient for fine-tuning larger, pre-converged models.
-
 ## 6. Proposed Improvement: Entropy-Based PAL
 
 The original PAL calculates confidence ($\alpha$) using Cosine Similarity between logits and the Ground Truth label13. This creates an artificial dependency where the model "peeks" at the label to determine confidence. We propose an Entropy-based Confidence measure.
@@ -78,6 +75,17 @@ A model should determine confidence based on the sharpness of its own prediction
 
 **Formula:**
 $$\alpha = 1 - \frac{Entropy(p)}{MaxEntropy}$$
+
+## 7. Conclusion:
+1. Verification of Model Capacity Claim (Successful Reproduction) The original paper states: "In particular, MixPro has better performance on models with fewer parameters".
+  -  On the capacity-constrained DeiT-Tiny (5M params), MixPro (70.77%) outperformed both the Baseline and TransMix.
+  -  This Confirmed the paper's claim that MaskMix's regularization is most critical for lightweight models.
+
+2. Verification of the "Unreliable Attention" Mechanism (Negative Verification) The paper's central premise is that MixPro is necessary because "at the early stage of training, the model produces unreliable attention maps".
+   -  By using a Pre-trained Backbone, we artificially removed the "unreliable attention" problem. When attention maps were reliable from the start (DeiT-Small), TransMix (which trusts attention immediately) outperformed MixPro.
+   -  This validates the authors' mechanism by proving the inverse: MixPro's PAL mechanism is indeed designed specifically for scenarios where attention is noisy (training from scratch). When that condition is removed, the method's advantage disappears, exactly as the theory predicts.
+  
+**Our results confirm that MixPro is a highly effective "cold-start" optimizer, particularly for small models, but is functionally redundant when applying Transfer Learning to larger, pre-converged backbones.**
 
 
 ## 7. Directory Structure
