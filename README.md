@@ -45,11 +45,11 @@ To evaluate the robustness of MixPro, we devised a **Transfer Learning Stress Te
 
 ### Quantitative Comparison (Epoch 150)
 
-| Method | Configuration | Top-1 Accuracy |
-| :--- | :--- | :--- |
-| **Baseline** | CutMix (Area-based) | *[Insert Value]* |
-| **TransMix** | Attention-based Mixing | **[Insert Value - Highest]** |
-| **MixPro** | MaskMix + PAL | *[Insert Value]* |
+| Model | Baseline Type | Baseline Top-1 Accuracy | Transmix Top-1 Accuracy |  Mixpro Top-1 Accuracy | 
+| :--- | :--- | :--- | :--- | :--- |
+| **Deit_s** | Standard (No Augmentation) | *67.82%* | *77.09%* | *75.65%* |
+| **Deit_t** | Strong (CutMix+) | *68%* | *77.09%* | *70.77%* |
+
 
 ### Scientific Explanation: The "Pre-training Paradox"
 
