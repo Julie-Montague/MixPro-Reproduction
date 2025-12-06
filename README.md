@@ -39,18 +39,42 @@ To evaluate the robustness of MixPro, we devised a **Transfer Learning Stress Te
 | **Initialization** | **Random (From Scratch)** | **Pre-trained (ImageNet)** | Investigating transfer learning robustness. |
 | **Backbone** | DeiT-Small / DeiT-Tiny | DeiT-Small / DeiT-Tiny | Consistent architectural comparison. |
 
-## 3. Implementation Details
-We reproduced the method using PyTorch and timm.
-Model: deit_tiny_patch16_224 / deit_small
-Dataset: ImageNet1k (reduced)
-Hyperparameters:
-  -  Optimizer: AdamW
-  -  Learning Rate: 0.001 (cosine decay)
-  -  Epochs: 300 (with 20-epoch warm-up)
-  -  MaskMix Scale: 4x
-  -  Mixing Probabilities: MixUp (0.8), CutMix (1.0), MixPro (1.0)
+## 5. Results & Critical Analysis
 
-## 4. Directory Structure
+> **Key Finding:** Under pre-trained conditions, **TransMix outperformed MixPro**, contradicting the results reported for training from scratch.
+
+### Quantitative Comparison (Epoch 150)
+
+| Method | Configuration | Top-1 Accuracy |
+| :--- | :--- | :--- |
+| **Baseline** | CutMix (Area-based) | *[Insert Value]* |
+| **TransMix** | Attention-based Mixing | **[Insert Value - Highest]** |
+| **MixPro** | MaskMix + PAL | *[Insert Value]* |
+
+### Scientific Explanation: The "Pre-training Paradox"
+
+Our analysis suggests that MixPro's **Progressive Attention Labeling (PAL)** is counter-productive in transfer learning.
+
+1.  **The Paper's Assumption:** Training starts with random weights $\rightarrow$ Attention maps are noise $\rightarrow$ PAL suppresses attention usage early on.
+2.  **Our Reality (Pre-trained):** Training starts with converged weights $\rightarrow$ Attention maps are **already reliable** at Epoch 1.
+3.  **The Conflict:** PAL forces the model to ignore these high-quality attention maps (via $\alpha$) and rely on coarse pixel-area labels. Meanwhile, **TransMix** utilizes the high-quality attention immediately, leading to better performance.
+
+**Conclusion:** MixPro is a specialized solution for *training from scratch*. For fine-tuning pre-trained models, simpler methods like TransMix are more efficient.
+
+## 6. Derived Improvement: Entropy-Based PAL
+
+To address the limitations of PAL (specifically its dependency on ground-truth alignment), we derived and implemented a novel improvement.
+
+* [cite_start]**Critique:** The original PAL calculates confidence ($\alpha$) using Cosine Similarity between logits and the Ground Truth label[cite: 143]. This creates an artificial dependency.
+* **Improvement:** We implemented an **Entropy-based Confidence** measure.
+    * **Logic:** A model should determine confidence based on the sharpness of its own predictions (Entropy), independent of the label.
+    * **Implementation:** Located in `src/methods/pal.py`.
+
+**Formula:**
+$$\alpha = 1 - \frac{Entropy(p)}{MaxEntropy}$$
+
+
+## 7. Directory Structure
 ```
 MIX-PRO-REPRO/
 ├── configs/
@@ -87,7 +111,7 @@ MIX-PRO-REPRO/
 └── README.md
 ```
 
-## 2. Environment Setup
+## 8. Environment Setup
 
 ```bash
 git clone github repo
@@ -111,7 +135,7 @@ CUDA_VISIBLE_DEVICES=<No of GPUs> torchrun --standalone --nproc_per_node= <No of
 **To run deit_t, substitute with deit_t yaml file**
 
 ```
-## 8. References
+## 9. References
 [1] Zhao, Q., et al. "MixPro: Data Augmentation with MaskMix and Progressive Attention Labeling for Vision Transformer." ICLR 2023. arXiv:2304.12043
 
 [2] Chen, J.-N., et al. "TransMix: Attend to Mix for Vision Transformers." CVPR 2022.
