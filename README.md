@@ -2,7 +2,8 @@
 Based on: MixPro: Data Augmentation with MaskMix and Progressive Attention Labeling for Vision Transformer (ICLR 2023)
 
 ## 1. Abstract
-This project focuses on reproducing the MixPro data augmentation strategy for Vision Transformers (ViTs). MixPro addresses limitations in prior Mixup-based methods (like CutMix and TransMix) by introducing two novel components: MaskMix (image space) and Progressive Attention Labeling (PAL) (label space). This repository contains a PyTorch implementation, reproduction results on reduced subset of the imageNet1k dataset , a critique of the methodology, and a proposed improvement using Entropy-based confidence.
+This project focuses on reproducing the MixPro data augmentation strategy for Vision Transformers (ViTs). We conduct a partial reproduction under limited compute using a deterministically constructed subset of the original dataset. We do not claim to reproduce the paper’s full-dataset headline scores; instead, we test whether the relative performance trends and key ablation conclusions hold.
+MixPro addresses limitations in prior Mixup-based methods (like CutMix and TransMix) by introducing two novel components: MaskMix (image space) and Progressive Attention Labeling (PAL) (label space). This repository contains a PyTorch implementation, reproduction results on reduced subset of the imageNet1k dataset , a critique of the methodology, and a proposed improvement using Entropy-based confidence.
 
 ## 2. Background & Motivation
 Vision Transformers (ViTs) generally require massive datasets to generalize well. While data augmentation techniques like CutMix and TransMix have helped, they suffer from specific issues when applied to ViTs:
