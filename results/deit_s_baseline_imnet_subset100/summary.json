@@ -1,0 +1,18 @@
+{
+  "run_name": "deit_s_baseline_imnet_subset100",
+  "method": "baseline",
+  "seed": 42,
+  "best_top1": 67.822,
+  "best_epoch": 5,
+  "epochs": 100,
+  "batch_size": 128,
+  "lr": 0.0005,
+  "weight_decay": 0.05,
+  "mixup_alpha": 0.0,
+  "cutmix_alpha": 0.0,
+  "maskmix_prob": "",
+  "maskmix_beta": "",
+  "maskmix_scale": "",
+  "model_name": "deit_s",
+  "img_size": 224
+}
