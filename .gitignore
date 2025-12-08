@@ -6,6 +6,7 @@ data/**
 *.csv
 *.tar.gz
 *.tar
+*.pyc
 
 
 *.pt
