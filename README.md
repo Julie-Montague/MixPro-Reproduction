@@ -50,10 +50,10 @@ We evaluated the models in a **Transfer Learning** regime (Pre-trained).To provi
 
 ### 5.1 Quantitative Results (Top-1 Accuracy)
 
-| Model | Baseline Type | Baseline Acc | MixPro (Ours) | TransMix | Best Method |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **DeiT-Small** | Standard (No Aug) | 67.82% | 75.65% | **77.42%** | TransMix |
-| **DeiT-Tiny** | Strong (CutMix+) | 68.00% | **70.77%** | 69.90% | **MixPro** |
+| Model | MixPro (Ours) | TransMix | Best Method |
+| :--- |  :--- | :--- | :--- |
+| **DeiT-Small** | 75.65% | **77.42%** | TransMix |
+| **DeiT-Tiny** | **70.77%** | 69.90% | **MixPro** |
 
 ### 5.2 Critical Analysis
 
