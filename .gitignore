@@ -1,0 +1,12 @@
+
+
+data/**
+!data/.gitkeep
+
+*.csv
+*.tar.gz
+*.tar
+
+
+*.pt
+*.log

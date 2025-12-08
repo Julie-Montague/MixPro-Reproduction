@@ -1,0 +1,51 @@
+run:
+  name: deit_s_mixpro_imnet_subset100_scratch
+  seed: 42
+
+model:
+  name: deit_s
+  num_classes: 1000
+  drop_path_rate: 0.1
+  pretrained: false #or true
+
+data:
+  data_dir: data/imagenet1k_subset_100pc
+  img_size: 224
+  crop_pct: 0.875
+  interpolation: bicubic
+  batch_size: 128          # match baseline
+  num_workers: 8
+  pin_memory: true
+  use_randaugment: true
+  ra_num_ops: 9
+  ra_magnitude: 15
+  random_erasing_prob: 0.25
+  seed: 42
+
+train:
+  eval_every: 1
+  epochs: 300 #if pretrained=true, reduce epochs to 100
+  warmup_epochs: 20 #and reduce epochs to 10
+  label_smoothing: 0.1
+  amp: true
+  grad_accum_steps: 2
+
+optim:
+  name: adamw
+  lr: 0.0005
+  warmup_lr: 0.000001
+  lr_min: 0.00001
+  weight_decay: 0.05
+
+mix:
+  use_mixpro: true
+  mixup_alpha: 0.8
+  cutmix_alpha: 1.0
+  prob: 1.0
+  switch_prob: 0.5
+  mode: batch
+
+maskmix:
+  prob: 1.0
+  beta: 1.0
+  scale: 4
