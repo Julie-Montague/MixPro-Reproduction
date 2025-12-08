@@ -1,0 +1,49 @@
+{
+  "run": {
+    "name": "deit_t_mixpro_imagenet1k_subset100",
+    "seed": 42
+  },
+  "model": {
+    "name": "deit_t",
+    "num_classes": 1000,
+    "drop_path_rate": 0.1,
+    "pretrained": true
+  },
+  "data": {
+    "data_dir": "data/imagenet1k_subset_100pc",
+    "img_size": 224,
+    "crop_pct": 0.875,
+    "interpolation": "bicubic",
+    "batch_size": 256,
+    "num_workers": 8,
+    "pin_memory": true,
+    "use_randaugment": true,
+    "ra_num_ops": 9,
+    "ra_magnitude": 15,
+    "random_erasing_prob": 0.25,
+    "seed": 42
+  },
+  "train": {
+    "eval_every": 2,
+    "epochs": 100,
+    "warmup_epochs": 10,
+    "label_smoothing": 0.1,
+    "amp": true,
+    "grad_accum_steps": 2
+  },
+  "optim": {
+    "name": "adamw",
+    "lr": 0.0005,
+    "warmup_lr": 1e-06,
+    "lr_min": 1e-05,
+    "weight_decay": 0.05
+  },
+  "mix": {
+    "use_mixpro": true,
+    "mixup_alpha": 0.8,
+    "cutmix_alpha": 1.0,
+    "prob": 1.0,
+    "switch_prob": 0.5,
+    "mode": "batch"
+  }
+}

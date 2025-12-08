@@ -1,0 +1,20 @@
+{
+  "run_name": "deit_s_mixpro_imnet_subset100_scratch",
+  "method": "mixpro",
+  "seed": 42,
+  "best_top1": 37.472,
+  "best_epoch": 169,
+  "last_epoch": 175,
+  "val": {
+    "val_loss": 2.9819154118919373,
+    "val_top1": 37.38,
+    "val_top5": 62.328
+  },
+  "train_last": {
+    "loss": 4.561752888136728,
+    "top1": 14.801736555697824,
+    "mix_apply_rate": 1.0,
+    "mix_alpha_mean": 0.3425003975181436,
+    "mix_lambda_final_mean": 0.4685701336067709
+  }
+}

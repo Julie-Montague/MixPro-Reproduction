@@ -1,0 +1,17 @@
+{
+  "run_name": "deit_t_mixpro_imagenet1k_subset100",
+  "method": "mixpro",
+  "seed": 42,
+  "best_top1": 70.772,
+  "best_epoch": 2,
+  "last_epoch": 100,
+  "val": {
+    "val_loss": 1.8044355328369142,
+    "val_top1": 58.082,
+    "val_top5": 81.48
+  },
+  "train_last": {
+    "loss": 3.2060833377715867,
+    "top1": 34.778645833333336
+  }
+}
