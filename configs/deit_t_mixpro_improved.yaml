@@ -1,0 +1,47 @@
+run:
+  name: deit_t_mixpro_imnet_subset100_improved
+  seed: 42
+
+model:
+  name: deit_t
+  num_classes: 1000
+  drop_path_rate: 0.1
+  pretrained: false #or false
+
+data:
+  data_dir: data/imagenet1k_subset_100pc
+  img_size: 224
+  crop_pct: 0.875
+  interpolation: bicubic
+  batch_size: 256          # keep SAME as mixpro for fairness
+  num_workers: 10
+  pin_memory: true
+  use_randaugment: true
+  ra_num_ops: 2
+  ra_magnitude: 9
+  random_erasing_prob: 0.25
+  seed: 42
+
+train:
+  eval_every: 1
+  epochs: 150 #if pretraine=true, reduce epochs to 100
+  warmup_epochs: 20 #also reduce warmup to 10
+  label_smoothing: 0.1
+  amp: true
+  grad_accum_steps: 2
+
+optim:
+  name: adamw
+  lr: 0.001        
+  warmup_lr: 0.000001
+  lr_min: 0.00001
+  weight_decay: 0.05
+
+maskmix:
+  scale: 4
+  beta: 1.0
+  prob: 1.0    
+
+pal:
+  alpha_mode: entropy     # cosine | entropy
+  alpha_ramp_epochs: 20   # 0 disables ramp
