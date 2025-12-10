@@ -2,21 +2,21 @@
   "run_name": "deit_t_transmix_imnet1k_subset100",
   "method": "transmix",
   "seed": 42,
-  "best_top1": 69.982,
-  "best_epoch": 5,
-  "last_epoch": 100,
+  "best_top1": 35.18,
+  "best_epoch": 150,
+  "last_epoch": 150,
   "val": {
-    "val_loss": 1.9399313941955567,
-    "val_top1": 54.842,
-    "val_top5": 79.58
+    "val_loss": 3.1241193292236327,
+    "val_top1": 35.18,
+    "val_top5": 59.626
   },
   "train_last": {
-    "loss": 4.454547442791557,
-    "top1": 26.024327784891167,
+    "loss": 4.4470046948163935,
+    "top1": 26.13982371794872,
     "mix_apply_rate": 1.0,
-    "lambda_area_mean": 0.3088472939784151,
-    "lambda_attn_mean": 0.4042093140501219,
-    "lambda_final_mean": 0.356528304528225
+    "lambda_area_mean": 0.3244110918356082,
+    "lambda_attn_mean": 0.3957692096582972,
+    "lambda_final_mean": 0.3600901504299448
   },
   "transmix": {
     "prob": 1.0,
