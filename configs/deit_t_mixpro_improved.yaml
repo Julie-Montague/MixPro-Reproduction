@@ -6,7 +6,7 @@ model:
   name: deit_t
   num_classes: 1000
   drop_path_rate: 0.1
-  pretrained: false #or false
+  pretrained: false #or true
 
 data:
   data_dir: data/imagenet1k_subset_100pc
