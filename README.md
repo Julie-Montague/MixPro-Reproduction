@@ -88,17 +88,19 @@ $$\alpha = 1 - \frac{Entropy(p)}{MaxEntropy}$$
 | **Sensitivity** | Low. Removing a dog's nose is a tiny pixel change, so Cosine Similarity would barely register a difference.| High. Removing a small but crucial part (like a dog's nose) triggers a large label change because attention was high there|
 | **Computation** | Expensive. Requires an extra forward pass or feature extraction to compare the "before" and "after" embeddings.| Efficient. Uses the attention map already computed in the Transformer block.|
 
+By using entropy confidence, instead of cosine similarity, the following results were noted:
+| Model | MixPro (Cosine similarity) | MixPro (Entropy confidence) | Δpp |
+| :--- |  :--- | :--- | :--- |
+| DeiT-Tiny | 33.08% | 37.49% | 4.41pp |
+
+The change in the alpha calculation method increased the Top-1 accuracy from 33.08% to 37.49%, a +4.41 percentage-point gain. Entropy provides a smoother and more reliable confidence signal early in training, improving PAL’s weighting. This is a promising improvement, but it’s currently validated in a limited setting and should be tested across seeds and backbones.
 
 ## 7. Conclusion:
-1. Verification of Model Capacity Claim : The original paper states: "In particular, MixPro has better performance on models with fewer parameters".
-  -  On the capacity-constrained DeiT-Tiny (5M params), MixPro (70.77%) outperformed both the Baseline and TransMix.
-  -  This Confirmed the paper's claim that MaskMix's regularization is most critical for lightweight models.
+Overall, we used the results from the MixPro pipeline under compute limits to test the paper’s logic. Firstly, we saw that MaskMix-style regularization can be more beneficial when model capacity is limited. By reducing the epochs/data, it was noted that the PAL factor remained low during training thus the λ_final was dominated by area-based mixing for most epochs. Under this constrained setting, MixPro likely did not transition into the attention-reliant regime where it is expected to outperform, while TransMix benefits from attention guidance from the start.
 
-2. Verification of the "Unreliable Attention" Mechanism (Negative Verification) The paper's central premise is that MixPro is necessary because "at the early stage of training, the model produces unreliable attention maps".
-   -  By using a Pre-trained Backbone, we artificially removed the "unreliable attention" problem. When attention maps were reliable from the start (DeiT-Small), TransMix (which trusts attention immediately) outperformed MixPro.
-   -  This validates the authors' mechanism by proving the inverse: MixPro's PAL mechanism is indeed designed specifically for scenarios where attention is noisy (training from scratch). When that condition is removed, the method's advantage disappears, exactly as the theory predicts.
-  
-**Our results showed that MixPro is functionally redundant when applying Transfer Learning to larger, pre-converged backbones.**
+Secondly, by doing a reverse stress test and checking the reliability of the PAL logic when the modelis already informative, we see thatTransMix can benefit more from trusting attention immediately. : Under transfer learning, PAL’s “warm-up” of attention trust may be less aligned with the pretrained regime; this could explain why TransMix outperforms MixPro for DeiT-Small in our stress test
+
+Finally, we implemented a simple improvement: using entropy as a label-free confidence for PAL, which gave a +4.41pp gain on DeiT-Tiny in our setup. This suggests confidence estimation is a key lever in MixPro-style methods.
 
 
 ## 7. Directory Structure
@@ -153,13 +155,17 @@ pip install -r requirements.txt
 
 #To run baseline:
 CUDA_VISIBLE_DEVICES=<No of GPUs> torchrun --standalone --nproc_per_node= <No of GPUs>\
-  -m src.train_baseline --config configs/deit_s_baseline.yaml --out results
+  -m src.train_baseline --config configs/deit_t_baseline.yaml --out results
 
 #To run mixpro:
 CUDA_VISIBLE_DEVICES=<No of GPUs> torchrun --standalone --nproc_per_node= <No of GPUs>\
-  -m src.train_mixpro --config configs/deit_s_mixpro.yaml --out results
+  -m src.train_mixpro --config configs/deit_t_mixpro.yaml --out results
 
-**To run deit_t, substitute with deit_t yaml file**
+#To run mixpro improvement:
+CUDA_VISIBLE_DEVICES=<No of GPUs> torchrun --standalone --nproc_per_node= <No of GPUs>\
+  -m src.train_mixpro --config configs/deit_t_mixpro_improved.yaml --out results
+
+**To run deit_s, substitute with deit_s yaml file**
 
 ```
 ## 9. References
