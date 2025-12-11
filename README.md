@@ -82,6 +82,13 @@ A model should determine confidence based on the sharpness of its own prediction
 **Formula:**
 $$\alpha = 1 - \frac{Entropy(p)}{MaxEntropy}$$
 
+| Feature | Cosine Similarity (Feature Distance) | Entropy Based | 
+| :--- |  :--- | :--- | 
+| **Focus** | Global Texture. It asks "Did the image style/pixels change?"| Semantic Relevance. It asks "Did I lose the object?"|
+| **Sensitivity** | Low. Removing a dog's nose is a tiny pixel change, so Cosine Similarity would barely register a difference.| High. Removing a small but crucial part (like a dog's nose) triggers a large label change because attention was high there|
+| **Computation** | Expensive. Requires an extra forward pass or feature extraction to compare the "before" and "after" embeddings.| Efficient. Uses the attention map already computed in the Transformer block.|
+
+
 ## 7. Conclusion:
 1. Verification of Model Capacity Claim : The original paper states: "In particular, MixPro has better performance on models with fewer parameters".
   -  On the capacity-constrained DeiT-Tiny (5M params), MixPro (70.77%) outperformed both the Baseline and TransMix.
