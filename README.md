@@ -2,7 +2,7 @@
 Base Paper: MixPro: Data Augmentation with MaskMix and Progressive Attention Labeling for Vision Transformer (ICLR 2023)
 
 ## 1. Abstract
-This project focuses on reproducing the MixPro data augmentation strategy for Vision Transformers (ViTs). We conduct a partial reproduction under limited compute using a deterministically constructed subset of the original dataset. Rather than aiming for exact headline scores, we test whether the relative performance trends hold under Transfer Learning conditions.
+This project focuses on reproducing the MixPro data augmentation strategy for Vision Transformers (ViTs). We conduct a partial reproduction under limited compute using a deterministically constructed subset of the original dataset. Rather than aiming for exact headline scores, we test whether the relative performance trends hold under contrained Learning conditions.
 
 MixPro addresses limitations in prior Mixup-based methods by introducing two novel components: MaskMix (image space) and Progressive Attention Labeling (PAL) (label space). This repository contains a PyTorch implementation, partial reproduction results on a subset of ImageNet-1k, a scientific critique of the methodology, and a proposed improvement.
 
@@ -32,21 +32,28 @@ PAL solves the "unreliable attention" problem by introducing a dynamic weight $\
 
 To evaluate the robustness of MixPro, we devised a Transfer Learning Stress Test. We deviated from the paper's "from-scratch" setup to test if MixPro provides value when fine-tuning pre-trained models on smaller datasets.
 
-| Feature | Original Paper Setup | Our Reproduction (Stress Test) | Justification |
+| Feature | Original Paper Setup | Our project | Additional Experiment |
 | :--- | :--- | :--- | :--- |
-| **Dataset** | ImageNet-1k (1.28M images) | ImageNet Subset | Resource constraints & Data Efficiency test. |
-| **Epochs** | 300 Epochs | 100 Epochs | Sufficient for fine-tuning convergence. |
-| **Initialization** | **Random (From Scratch)** | **Pre-trained (ImageNet)** | Investigating transfer learning robustness. |
-| **Backbone** | DeiT-Small / DeiT-Tiny | DeiT-Small / DeiT-Tiny | Consistent architectural comparison. |
+| **Dataset** | ImageNet-1k (1.28M images) | ImageNet Subset | ImageNet Subset |
+| **Epochs** | 300 Epochs | 150 Epochs | 100 Epochs |
+| **Initialization** | **Random (From Scratch)** | **Random (From Scratch)** | **Pre-trained (ImageNet)** |
+| **Backbone** | DeiT-Tiny | DeiT-Tiny | DeiT-Small / DeiT-Tiny |
 
-Important: This leads to differences from the paper’s ImageNet-1K training regime (full dataset, larger batch, etc.), so reported accuracies should be interpreted as **“in our constrained regime”** only.
+Important: This leads to differences from the paper’s ImageNet-1K training regime (full dataset, larger epochs, etc.), so reported accuracies should be interpreted as **“in our constrained regime”** only.
 
 
-## 5. Experimental Results: The "Stress Test"
+## 5. Experimental Results
+### 5.1 Partial Reproduction Results
+Evaluating using Top-1 Accuracy
+| Model | Baseline |  MixPro | TransMix |
+| :--- |  :--- | :--- | :--- |
+| **DeiT-Tiny** | **34.07%** | **35.18%** | **33.08%** |
 
-We evaluated the models in a **Transfer Learning** regime (Pre-trained).
+Under a compute-constrained reproduction (ImageNet-1K subset + 150 epochs, from scratch), we did not observe MixPro outperforming TransMix on DeiT-Tiny. Instead, TransMix improves over baseline (+1.11 pp), while MixPro underperforms (–2.10 pp vs TransMix). This suggests MixPro’s reported advantage may be sensitive to training budget and/or data scale, or may require the full 300-epoch regime to realize its benefit.
+The PAL confidence also remained low throughout training (α_mean ≈ 0.04 → 0.37 by epoch 145), meaning λ_final was dominated by area-based mixing for most epochs. Under this constrained setting, MixPro likely did not transition into the attention-reliant regime where it is expected to outperform, while TransMix benefits from attention guidance from the start.
 
-### 5.1 Quantitative Results (Top-1 Accuracy)
+### 5.2 Quantitative Results (Top-1 Accuracy)
+We also evaluated the models in a **Transfer Learning** regime (Pre-trained on Imagenet1k).
 
 | Model | MixPro (Ours) | TransMix | Best Method |
 | :--- |  :--- | :--- | :--- |
@@ -55,16 +62,15 @@ We evaluated the models in a **Transfer Learning** regime (Pre-trained).
 
 ### 5.2 Critical Analysis
 
-Our results reveal a distinct interaction between Model Capacity and Augmentation Strategy, highlighting a limitation in the MixPro methodology when applied to Transfer Learning.
+Our results reveal a distinct interaction between Model Capacity and Augmentation Strategy, highlighting a limitation in the MixPro methodology when applied to Transfer Learning. Pretraining changes the early attention quality, so it’s a deliberate test of the method’s claimed mechanism : if PAL helps because attention is unreliable early, then in a pretrained regime we should expect the PAL benefit to shrink.
 
 1.  **DeiT-Tiny Favors MixPro:**
     For the capacity-constrained Tiny model, **MixPro** achieved the highest accuracy (**70.77%**).
-    *  Smaller models benefit significantly from the aggressive regularization provided by **MaskMix** (Grid Masking). The paper notes MixPro performs better on models with fewer parameters. By forcing the model to reconstruct global context from scattered patches, MixPro prevents overfitting, a benefit that outweighs the simpler CutMix strategy.
+    *  Smaller models may benefit significantly from the aggressive regularization provided by **MaskMix** (Grid Masking). The paper notes MixPro performs better on models with fewer parameters. This is consistent with MixPro acting as a stronger regularizer in a lower-capacity regime, where patch-level mixing can improve generalization on limited data.
 
 2.  **DeiT-Small Favors TransMix:**
     For the larger Small model, **TransMix** achieved the highest accuracy (**77.42%**).
-    *  This contradicts the "unreliable attention" premise of the paper. Because we utilized a Pre-trained Backbone, the attention maps were reliable from Epoch 1.
-    *  MixPro's PAL mechanism forces the model to ignore these high-quality attention maps (via $\alpha$) early in training. TransMix, which trusts attention immediately, leveraged the pre-trained priors more effectively.
+    *  In the pretrained setting, attention maps may be informative early, so TransMix can benefit immediately. PAL’s delayed reliance on attention may therefore be less beneficial (or slightly restrictive) in transfer learning.
 
 ## 6. Proposed Improvement: Entropy-Based PAL
 
