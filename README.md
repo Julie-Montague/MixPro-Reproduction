@@ -99,7 +99,7 @@ The change in the alpha calculation method increased the Top-1 accuracy from 33.
 ## 7. Conclusion:
 Overall, we used the results from the MixPro pipeline under compute limits to test the paper’s logic. Firstly, we saw that MaskMix-style regularization can be more beneficial when model capacity is limited. By reducing the epochs/data, it was noted that the PAL factor remained low during training thus the λ_final was dominated by area-based mixing for most epochs. Under this constrained setting, MixPro likely did not transition into the attention-reliant regime where it is expected to outperform, while TransMix benefits from attention guidance from the start.
 
-Secondly, by doing a reverse stress test and checking the reliability of the PAL logic when the modelis already informative, we see thatTransMix can benefit more from trusting attention immediately. : Under transfer learning, PAL’s “warm-up” of attention trust may be less aligned with the pretrained regime; this could explain why TransMix outperforms MixPro for DeiT-Small in our stress test
+Secondly, by doing a reverse stress test and checking the reliability of the PAL logic when the modelis already informative, we see that TransMix can benefit more from trusting attention immediately. : Under transfer learning, PAL’s “warm-up” of attention trust may be less aligned with the pretrained regime; this could explain why TransMix outperforms MixPro for DeiT-Small in our stress test
 
 Finally, we implemented a simple improvement: using entropy as a label-free confidence for PAL, which gave a +4.41pp gain on DeiT-Tiny in our setup. This suggests confidence estimation is a key lever in MixPro-style methods.
 
