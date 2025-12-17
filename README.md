@@ -50,6 +50,7 @@ Evaluating using Top-1 Accuracy
 | **DeiT-Tiny** | **34.07%** | **35.18%** | **33.08%** |
 
 Under a compute-constrained reproduction (ImageNet-1K subset + 150 epochs, from scratch), we did not observe MixPro outperforming TransMix on DeiT-Tiny. Instead, TransMix improves over baseline (+1.11 pp), while MixPro underperforms (–2.10 pp vs TransMix). This suggests MixPro’s reported advantage may be sensitive to training budget and/or data scale, or may require the full 300-epoch regime to realize its benefit.
+
 The PAL confidence also remained low throughout training (α_mean ≈ 0.04 → 0.37 by epoch 145), meaning λ_final was dominated by area-based mixing for most epochs. Under this constrained setting, MixPro likely did not transition into the attention-reliant regime where it is expected to outperform, while TransMix benefits from attention guidance from the start.
 ![MixPro overview](src/images/alpha_trend.png)
 
