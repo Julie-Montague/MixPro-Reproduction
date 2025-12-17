@@ -45,7 +45,7 @@ Important: This leads to differences from the paper’s ImageNet-1K training reg
 ## 5. Experimental Results
 ### 5.1 Partial Reproduction Results
 Evaluating using Top-1 Accuracy
-| Model | Baseline |  MixPro | TransMix |
+| Model | Baseline |  Transmix | Mixpro |
 | :--- |  :--- | :--- | :--- |
 | **DeiT-Tiny** | **34.07%** | **35.18%** | **33.08%** |
 
