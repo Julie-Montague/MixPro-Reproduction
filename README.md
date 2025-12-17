@@ -77,7 +77,7 @@ Our results reveal a distinct interaction between Model Capacity and Augmentatio
 
 ## 6. Proposed Improvement: Entropy-Based PAL
 
-The original PAL calculates confidence ($\alpha$) using Cosine Similarity between logits and the Ground Truth label13. This creates an artificial dependency where the model "peeks" at the label to determine confidence. We propose an Entropy-based Confidence measure.
+The original PAL calculates confidence ($\alpha$) using Cosine Similarity between logits and the Ground Truth label. This creates an artificial dependency where the model "peeks" at the label to determine confidence. We propose an Entropy-based Confidence measure.
 A model should determine confidence based on the sharpness of its own predictions (Entropy), independent of the label.
 
 **Formula:**
