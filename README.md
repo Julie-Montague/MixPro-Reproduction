@@ -1,6 +1,25 @@
 # MixPro: Constrained Reproduction and Critical Analysis
 Base Paper: MixPro: Data Augmentation with MaskMix and Progressive Attention Labeling for Vision Transformer (ICLR 2023)
 
+## Project Overview
+This project reproduces the MixPro method for Vision Transformers using PyTorch.
+
+The goal is to:
+- Reproduce results from a research paper
+- Implement a modular deep learning training pipeline
+- Evaluate performance improvements using attention-based methods
+
+## Key Contributions
+- Implemented Vision Transformer architecture in PyTorch
+- Built modular training pipeline (configs, scripts, model structure)
+- Designed reproducible experiment setup
+- Analyzed model behavior through attention mechanisms
+
+## Tech Stack
+- Python
+- PyTorch
+- Deep learning training pipelines : Deit-Small, Deit-Tiny
+
 ## 1. Abstract
 This project focuses on reproducing the MixPro data augmentation strategy for Vision Transformers (ViTs). We conduct a partial reproduction under limited compute using a deterministically constructed subset of the original dataset. Rather than aiming for exact headline scores, we test whether the relative performance trends hold under contrained Learning conditions.
 
